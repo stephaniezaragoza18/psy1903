@@ -34,16 +34,25 @@
 // let words = ['pink', 'purple', 'green', 'turquoise'];
 // console.log(getWordLengths(words));
 
-function getLongestWord(words) {
-    let LongestWord = '';
-    for (let word of words) {
-        if (word.length > LongestWord.length) {
-            LongestWord = word;
+// function getLongestWord(words) {
+//     let LongestWord = '';
+//     for (let word of words) {
+//         if (word.length > LongestWord.length) {
+//             LongestWord = word;
+//         }
+//     }
+//     return LongestWord
+// }
+// let words = ['apple', 'banana', 'cherry', 'pear', 'grape'];
+// console.log(getLongestWord(words));
+
+function getOddNumbers(numbers) {
+    let oddNumbers = [];
+    for (let number of numbers) {
+        if (number % 2 != 0) {
+            oddNumbers.push(number)
         }
     }
-    return LongestWord
+    return oddNumbers
 }
-let words = ['apple', 'banana', 'cherry', 'pear', 'grape'];
-console.log(getLongestWord(words));
-
-
+console.log(getOddNumbers([1, 2, 3, 4, 5]));
