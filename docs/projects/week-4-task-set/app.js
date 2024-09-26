@@ -1,3 +1,4 @@
+
 // function celsiusToFahrenheit(celsius) {
 //     let fahrenheit = (celsius * 1.8) + 32;
 //     return fahrenheit;
@@ -23,12 +24,26 @@
 //     console.log(word.length); //Expected Output [4, 6, 5, 9]
 // }
 
-function getWordLengths() {
-    let wordlengths = [];
-    for (let i = 0; i < words.length; i++) {
-        wordlengths.push(words[i].length)
+// function getWordLengths() {
+//     let wordlengths = [];
+//     for (let i = 0; i < words.length; i++) {
+//         wordlengths.push(words[i].length)
+//     }
+//     return wordlengths
+// }
+// let words = ['pink', 'purple', 'green', 'turquoise'];
+// console.log(getWordLengths(words));
+
+function getLongestWord(words) {
+    let LongestWord = '';
+    for (let word of words) {
+        if (word.length > LongestWord.length) {
+            LongestWord = word;
+        }
     }
-    return wordlengths
+    return LongestWord
 }
-let words = ['pink', 'purple', 'green', 'turquoise'];
-console.log(getWordLengths(words));
+let words = ['apple', 'banana', 'cherry', 'pear', 'grape'];
+console.log(getLongestWord(words));
+
+
