@@ -2,6 +2,17 @@ let jsPsych = initJsPsych();
 
 let timeline = [];
 
+// Retrieve the query string from the URL
+let queryString = new URLSearchParams(window.location.search);
+
+// Extract the value for qualtricsId from the query string
+let qualtricsId = queryString.get('qualtricsId');
+console.log(qualtricsId);
+
+// Persist the value for qualtricsId to your experiment data
+jsPsych.data.addProperties({ qualtricsId: qualtricsId });
+
+
 // Welcome
 let welcomeTrial = {
     type: jsPsychHtmlKeyboardResponse,
@@ -15,30 +26,36 @@ let welcomeTrial = {
 };
 
 timeline.push(welcomeTrial);
+jsPsych.run(timeline);
+
 //jsPsych.run(timeline);
 
-let images = ['clothed', 'nude']
-let imagesRandomized = initJsPsych().randomization.repeat(images, 1);
-let randomIndex = getRandomNumber(0, 1)
-let image = images[randomIndex]
+//let images = ['clothed', 'nude']
+//let imagesRandomized = initJsPsych().randomization.repeat(images, 1);
+//let randomIndex = getRandomNumber(0, 1)
+//let image = images[randomIndex]
 
-let initialTrial = {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: '<p>Click on the image you would like to look at first. You will be able to view the images as many times as you would like. </p>',
-    choices: imagesRandomized,
-    button_html:
-        (choice) => `<img src='paintings/${choice}painting.png'>`
-};
-timeline.push(initialTrial);
+// let initialTrial = {
+//     type: jsPsychHtmlButtonResponse,
+//     stimulus: '<p>Click on the image you would like to look at first. You will be able to view the images as many times as you would like. </p>',
+//     choices: imagesRandomized,
+//     button_html:
+//         (choice) => `<img src='paintings/${choice}painting.png'>`
+// };
+// timeline.push(initialTrial);
 
-let viewTrial = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-    <p>You chose the below image.</p>`
-    //data: { collect: true },
-    //on_start: function () {
+// let viewTrial = {
+//     type: jsPsychHtmlKeyboardResponse,
+//     stimulus: `
+//     <p>You chose the below image.</p>`
+//     //data: { collect: true },
+//     //on_start: function () {
 
-}
+// };
+// timeline.push(viewTrial);
+// jsPsych.run(timeline);
+
+
 //};
 let resultsTrial = {
     type: jsPsychHtmlKeyboardResponse,
@@ -95,24 +112,24 @@ let resultsTrial = {
 }
 timeline.push(resultsTrial);
 
-Debrief
-let debriefTrial = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-    <h1>Thank you!</h1>
-    <p>You can now close this tab</p>
-    `,
-    choices: ['NO KEYS'],
-    on_start: function () {
-        let data = jsPsych.data
-            .get()
-            .filter({ collect: true })
-            .ignore(['stimulus', 'trial_type', 'trial_index', 'plugin_version', 'collect'])
-            .csv();
-        console.log(data);
-    }
-}
-timeline.push(debriefTrial);
+// Debrief
+// let debriefTrial = {
+//     type: jsPsychHtmlKeyboardResponse,
+//     stimulus: `
+//     <h1>Thank you!</h1>
+//     <p>You can now close this tab</p>
+//     `,
+//     choices: ['NO KEYS'],
+//     on_start: function () {
+//         let data = jsPsych.data
+//             .get()
+//             .filter({ collect: true })
+//             .ignore(['stimulus', 'trial_type', 'trial_index', 'plugin_version', 'collect'])
+//             .csv();
+//         console.log(data);
+//     }
+// }
+// timeline.push(debriefTrial);
 
-jsPsych.run(timeline);
+// jsPsych.run(timeline);
 
