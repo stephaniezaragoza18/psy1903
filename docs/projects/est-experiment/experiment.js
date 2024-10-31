@@ -1,4 +1,6 @@
-let jsPsych = initJsPsych();
+let jsPsych = initJsPsych({
+    show_progress_bar: true
+});
 // Output the resulting conditions array to make sure it is set up correctly
 // console.log(conditions);
 
@@ -52,10 +54,6 @@ timeline.push(primingTrial);
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-
-
-
 //questionnaire task
 
 var likert_scale = [
@@ -243,10 +241,10 @@ let debriefTrial = {
             .filter({ collect: true })
             .ignore(['stimulus', 'trial_type', 'trial_index', 'plugin_version', 'collect'])
             .csv();
+        jsPsych.progressBar.progress = 1;
         console.log(data);
     }
 }
 timeline.push(debriefTrial);
 
 jsPsych.run(timeline);
-
