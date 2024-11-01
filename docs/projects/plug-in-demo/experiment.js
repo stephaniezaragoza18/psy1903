@@ -169,7 +169,7 @@ let resultsTrial = {
 
         let prefix = 'plugin-demo';
         let dataPipeExperimentId = 'hg4lGx4J7lW1';
-        let forceOSFSave = true;
+        let forceOSFSave = false;
         let participantId = getCurrentTimestamp();
         let fileName = prefix + '-' + participantId + '.csv';
 
