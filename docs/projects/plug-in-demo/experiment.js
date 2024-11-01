@@ -1,16 +1,18 @@
 let jsPsych = initJsPsych();
 
 let timeline = [];
+// // Generate a participant ID based on the current timestamp
+// let participantId = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
 
-// Retrieve the query string from the URL
-let queryString = new URLSearchParams(window.location.search);
+// // Retrieve the query string from the URL
+// let queryString = new URLSearchParams(window.location.search);
 
-// Extract the value for qualtricsId from the query string
-let qualtricsId = queryString.get('qualtricsId');
-console.log(qualtricsId);
+// // Extract the value for qualtricsId from the query string
+// let qualtricsId = queryString.get('qualtricsId');
+// console.log(qualtricsId);
 
-// Persist the value for qualtricsId to your experiment data
-jsPsych.data.addProperties({ qualtricsId: qualtricsId });
+// // Persist the value for qualtricsId to your experiment data
+// jsPsych.data.addProperties({ qualtricsId: qualtricsId });
 
 
 // Welcome
@@ -26,14 +28,12 @@ let welcomeTrial = {
 };
 
 timeline.push(welcomeTrial);
-jsPsych.run(timeline);
+//jsPsych.run(timeline);
 
 //jsPsych.run(timeline);
 
-//let images = ['clothed', 'nude']
-//let imagesRandomized = initJsPsych().randomization.repeat(images, 1);
-//let randomIndex = getRandomNumber(0, 1)
-//let image = images[randomIndex]
+let images = ['clothed', 'nude'];
+let imagesRandomized = initJsPsych().randomization.shuffle(images);
 
 // let initialTrial = {
 //     type: jsPsychHtmlButtonResponse,
@@ -53,24 +53,110 @@ jsPsych.run(timeline);
 
 // };
 // timeline.push(viewTrial);
-// jsPsych.run(timeline);
+// //jsPsych.run(timeline);
 
+let conditionTrial1 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+    <p>Click on the image you would like to view. You will be able to view the image for as long as you would like.</p>
+    `,
+    choices: imagesRandomized,
+    button_html: (choice) => `<button><img class= 'image-size' src="${choice}painting.png" alt="${choice}"></button>`,
 
-//};
+    data: {
+        collect: true,
+        imageOrder: imagesRandomized
+    },
+    on_finish: function (data) {
+        // Store imageOrder and imageSelected specific to this trial
+        let lastTrialData = jsPsych.data.getLastTrialData().trials[0];
+        let response = lastTrialData.response;
+        let imageSelected = lastTrialData.imageOrder[response];
+        data.imageSelected = imageSelected;
+    }
+}
+
+timeline.push(conditionTrial1);
+
+let viewTrial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: function () {
+        let lastTrialData = jsPsych.data.getLastTrialData().trials[0];
+        let response = jsPsych.data.getLastTrialData().trials[0].response;
+        let imageSelected = lastTrialData.imageOrder[response];
+        return `
+    <p>You chose the below image: </p>
+        <img class= 'image-size2' src='${imageSelected}painting.png'>
+<p>Press the SPACE key to go back to the previous screen</p>`
+    },
+    choices: [' '],
+    data: {
+        collect: false,
+    },
+};
+
+timeline.push(viewTrial);
+
+let conditionTrial2 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+    <p>Click on the image you would like to view. You will be able to view the image for as long as you would like.</p>
+    `,
+    choices: imagesRandomized,
+    button_html: (choice) => `<button><img class= 'image-size' src="${choice}painting.png" alt="${choice}"></button>`,
+    on_start: function (data) {
+        // Store the image order again for the second condition
+        data.imageOrder = imagesRandomized;
+    },
+    data: {
+        imageOrder: imagesRandomized,
+        collect: true
+    },
+    on_finish: function (data) {
+        // Store imageOrder and imageSelected specific to this trial
+        let lastTrialData = jsPsych.data.getLastTrialData().trials[0];
+        let response = lastTrialData.response;
+        let imageSelected = lastTrialData.imageOrder[response];
+        data.imageSelected = imageSelected;
+    }
+}
+timeline.push(conditionTrial2);
+
+let viewTrial2 = {
+
+    // Get the index of the button clicked
+    //data.imageSelected = lastTrialData.response; // Access the stored image order
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: function () {
+        let lastTrialData = jsPsych.data.getLastTrialData().trials[0];
+        //console.log(lastTrialData);
+        //the above line works because it needed .trials[0] to tell it where to go. same for the below line.
+        let response = jsPsych.data.getLastTrialData().trials[0].response;
+        let image = lastTrialData.imageOrder[response];
+        //this.data.imageSelected = image;
+        return `
+    <p>You chose the below image: </p>
+    <img class= 'image-size2' src='${image}painting.png'>
+<p>Press the SPACE key to go back to the previous screen</p>`
+    },
+    choices: [' '],
+    data: {
+        collect: false,
+    },
+};
+timeline.push(viewTrial2);
+
 let resultsTrial = {
     type: jsPsychHtmlKeyboardResponse,
-    choices: ['NO KEYS'],
+    choices: [' '],
     async: false,
     stimulus: `
         <h1>Please wait...</h1>
         <span class='loader'></span>
         <p>We are saving the results of your inputs.</p>
+        <h1>Thank you!</h1> 
         `,
     on_start: function () {
-        //  ⭐ Update the following three values as appropriate ⭐
-        let prefix = 'demo-plugin';
-        let dataPipeExperimentId = 'hg4lGx4J7lW1';
-        let forceOSFSave = false;
 
         // Filter and retrieve results as CSV data
         let results = jsPsych.data
@@ -81,55 +167,97 @@ let resultsTrial = {
 
         console.log(results);
 
-        // Generate a participant ID based on the current timestamp
-        let participantId = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+        let prefix = 'plugin-demo';
+        let dataPipeExperimentId = 'hg4lGx4J7lW1';
+        let forceOSFSave = true;
+        let participantId = getCurrentTimestamp();
+        let fileName = prefix + '-' + participantId + '.csv';
 
-        // Dynamically determine if the experiment is currently running locally or on production
-        let isLocalHost = window.location.href.includes('localhost');
-
-        let destination = '/save';
-        if (!isLocalHost || forceOSFSave) {
-            destination = 'https://pipe.jspsych.org/api/data/';
-        }
-
-        // Send the results to our saving end point
-        fetch(destination, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: '*/*',
-            },
-            body: JSON.stringify({
-                experimentID: dataPipeExperimentId,
-                filename: prefix + '-' + participantId + '.csv',
-                data: results,
-            }),
-        }).then(data => {
-            console.log(data);
+        saveResults(fileName, results, dataPipeExperimentId, forceOSFSave).then(response => {
+            console.log(response);
             jsPsych.finishTrial();
         })
     }
 }
 timeline.push(resultsTrial);
+jsPsych.run(timeline);
+
+
+//timeline.push(resultsTrial);
+//jsPsych.run(timeline); 
+
+// let resultsTrial = {
+//     type: jsPsychHtmlKeyboardResponse,
+//     choices: ['NO KEYS'],
+//     async: false,
+//     stimulus: `
+//         <h1>Please wait...</h1>
+//         <span class='loader'></span>
+//         <p>We are saving the results of your inputs.</p>
+//         `,
+//     on_start: function () {
+//         //  ⭐ Update the following three values as appropriate ⭐
+//         let prefix = 'demo-plugin';
+//         let dataPipeExperimentId = 'hg4lGx4J7lW1';
+//         let forceOSFSave = false;
+
+//         // Filter and retrieve results as CSV data
+//         let results = jsPsych.data
+//             .get()
+//             .filter({ collect: true })
+//             .ignore(['stimulus', 'trial_type', 'plugin_version', 'collect'])
+//             .csv();
+
+//         console.log(results);
+
+// Generate a participant ID based on the current timestamp
+// let participantId = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+
+// Dynamically determine if the experiment is currently running locally or on production
+//     let isLocalHost = window.location.href.includes('localhost');
+
+//     let destination = '/save';
+//     if(!isLocalHost || forceOSFSave) {
+//         destination = 'https://pipe.jspsych.org/api/data/';
+// }
+
+// // Send the results to our saving end point
+// fetch(destination, {
+//     method: 'POST',
+//     headers: {
+//         'Content-Type': 'application/json',
+//         Accept: '*/*',
+//     },
+//     body: JSON.stringify({
+//         experimentID: dataPipeExperimentId,
+//         filename: prefix + '-' + participantId + '.csv',
+//         data: results,
+//     }),
+// }).then(data => {
+//     console.log(data);
+//     jsPsych.finishTrial();
+// })
+//     }
+// }
+// timeline.push(resultsTrial);
 
 // Debrief
 // let debriefTrial = {
 //     type: jsPsychHtmlKeyboardResponse,
-//     stimulus: `
-//     <h1>Thank you!</h1>
-//     <p>You can now close this tab</p>
-//     `,
-//     choices: ['NO KEYS'],
-//     on_start: function () {
-//         let data = jsPsych.data
-//             .get()
-//             .filter({ collect: true })
-//             .ignore(['stimulus', 'trial_type', 'trial_index', 'plugin_version', 'collect'])
-//             .csv();
-//         console.log(data);
-//     }
+//     stimulus: function (data) {
+
+//         let linkToQualtricsSurvey = `https://harvard.az1.qualtrics.com/jfe/form/SV_2f55Usaoi1o82jQ?experimentParticipantId=${participantId}`
+
+//         return `
+//         <h1>Thank you!</h1>
+//         <p>
+//             To complete your response, 
+//             please follow <a href='${linkToQualtricsSurvey}'>this link</a> 
+//             and complete the survey you see there.
+//         </p>
+//     `},
+//     choices: ['NO KEYS']
 // }
 // timeline.push(debriefTrial);
 
-// jsPsych.run(timeline);
 
