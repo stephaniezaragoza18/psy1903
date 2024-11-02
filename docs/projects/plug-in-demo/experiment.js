@@ -1,18 +1,18 @@
 let jsPsych = initJsPsych();
 
 let timeline = [];
-// // Generate a participant ID based on the current timestamp
-// let participantId = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
+// Generate a participant ID based on the current timestamp
+let participantId = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
 
-// // Retrieve the query string from the URL
-// let queryString = new URLSearchParams(window.location.search);
+// Retrieve the query string from the URL
+let queryString = new URLSearchParams(window.location.search);
 
-// // Extract the value for qualtricsId from the query string
-// let qualtricsId = queryString.get('qualtricsId');
-// console.log(qualtricsId);
+// Extract the value for qualtricsId from the query string
+let qualtricsId = queryString.get('qualtricsId');
+console.log(qualtricsId);
 
-// // Persist the value for qualtricsId to your experiment data
-// jsPsych.data.addProperties({ qualtricsId: qualtricsId });
+// Persist the value for qualtricsId to your experiment data
+jsPsych.data.addProperties({ qualtricsId: qualtricsId });
 
 
 // Welcome
@@ -146,6 +146,8 @@ let viewTrial2 = {
 };
 timeline.push(viewTrial2);
 
+let linkToQualtricsSurvey = `https://harvard.az1.qualtrics.com/jfe/form/SV_2f55Usaoi1o82jQ?experimentParticipantId=${participantId}`
+
 let resultsTrial = {
     type: jsPsychHtmlKeyboardResponse,
     choices: [' '],
@@ -155,6 +157,7 @@ let resultsTrial = {
         <span class='loader'></span>
         <p>We are saving the results of your inputs.</p>
         <h1>Thank you!</h1> 
+        <p>To complete your response, please follow <a href='${linkToQualtricsSurvey}'>this link</a> and complete the survey you see there. </p>
         `,
     on_start: function () {
 
@@ -183,81 +186,5 @@ timeline.push(resultsTrial);
 jsPsych.run(timeline);
 
 
-//timeline.push(resultsTrial);
-//jsPsych.run(timeline); 
-
-// let resultsTrial = {
-//     type: jsPsychHtmlKeyboardResponse,
-//     choices: ['NO KEYS'],
-//     async: false,
-//     stimulus: `
-//         <h1>Please wait...</h1>
-//         <span class='loader'></span>
-//         <p>We are saving the results of your inputs.</p>
-//         `,
-//     on_start: function () {
-//         //  ⭐ Update the following three values as appropriate ⭐
-//         let prefix = 'demo-plugin';
-//         let dataPipeExperimentId = 'hg4lGx4J7lW1';
-//         let forceOSFSave = false;
-
-//         // Filter and retrieve results as CSV data
-//         let results = jsPsych.data
-//             .get()
-//             .filter({ collect: true })
-//             .ignore(['stimulus', 'trial_type', 'plugin_version', 'collect'])
-//             .csv();
-
-//         console.log(results);
-
-// Generate a participant ID based on the current timestamp
-// let participantId = new Date().toISOString().replace(/T/, '-').replace(/\..+/, '').replace(/:/g, '-');
-
-// Dynamically determine if the experiment is currently running locally or on production
-//     let isLocalHost = window.location.href.includes('localhost');
-
-//     let destination = '/save';
-//     if(!isLocalHost || forceOSFSave) {
-//         destination = 'https://pipe.jspsych.org/api/data/';
-// }
-
-// // Send the results to our saving end point
-// fetch(destination, {
-//     method: 'POST',
-//     headers: {
-//         'Content-Type': 'application/json',
-//         Accept: '*/*',
-//     },
-//     body: JSON.stringify({
-//         experimentID: dataPipeExperimentId,
-//         filename: prefix + '-' + participantId + '.csv',
-//         data: results,
-//     }),
-// }).then(data => {
-//     console.log(data);
-//     jsPsych.finishTrial();
-// })
-//     }
-// }
-// timeline.push(resultsTrial);
-
-// Debrief
-// let debriefTrial = {
-//     type: jsPsychHtmlKeyboardResponse,
-//     stimulus: function (data) {
-
-//         let linkToQualtricsSurvey = `https://harvard.az1.qualtrics.com/jfe/form/SV_2f55Usaoi1o82jQ?experimentParticipantId=${participantId}`
-
-//         return `
-//         <h1>Thank you!</h1>
-//         <p>
-//             To complete your response, 
-//             please follow <a href='${linkToQualtricsSurvey}'>this link</a> 
-//             and complete the survey you see there.
-//         </p>
-//     `},
-//     choices: ['NO KEYS']
-// }
-// timeline.push(debriefTrial);
 
 
