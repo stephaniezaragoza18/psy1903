@@ -1,9 +1,22 @@
 let jsPsych = initJsPsych({
     show_progress_bar: true
 });
+//Consent
+let timeline = [];
+let consentTrial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+    <p>This experiment is an educational exercise about learning to program and analyze a psychological experiment and not a “real” scientific experiment.
+    No identifying information is collected, and data will not be shared beyond our class. 
+    If you agree to help out by completing the tasks and questionnaires, please click <span class='key'>Space</span>.
+    Otherwise, you may close this tab.
+    If you have any questions, please reach out to Dr.Garth Coombs (garthcoombs@fas.harvard.edu), one of the head instructors of PSY 1903: Programming for Psychological Scientists.</p>`,
+    choices: [' '],
+};
+timeline.push(consentTrial);
 
 // Welcome
-let timeline = [];
+//let timeline = [];
 let welcomeTrial = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
