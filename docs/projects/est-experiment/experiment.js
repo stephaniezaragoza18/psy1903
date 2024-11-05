@@ -1,12 +1,9 @@
 let jsPsych = initJsPsych({
     show_progress_bar: true
 });
-// Output the resulting conditions array to make sure it is set up correctly
-// console.log(conditions);
 
 // Welcome
 let timeline = [];
-
 let welcomeTrial = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
@@ -18,12 +15,8 @@ let welcomeTrial = {
     <p>Press <span class='key'>SPACE</span> to begin</p>
     `,
     choices: [' ']
-
-
-    //style questions see notepad
 };
 timeline.push(welcomeTrial);
-
 
 let images = ['failure', 'neutral', 'success']
 let randomIndex = getRandomNumber(0, 2)
@@ -33,11 +26,8 @@ let primingTrial = {
     type: jsPsychSurveyHtmlForm,
     preamble: `<p>Describe what you see in the image.</p>`,
     html: `
-  
-   <img src='primeimages/${image}prime.png'>
+    <p><img src='primeimages/${image}prime.png'></p>
           <input name='responseInput' id='response' type='text'>`,
-
-
     autofocus: 'response',
     button_label: 'Submit Answer',
     data: {
@@ -50,12 +40,7 @@ let primingTrial = {
 };
 timeline.push(primingTrial);
 
-
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 //questionnaire task
-
 var likert_scale = [
     "Strongly Disagree",
     "Disagree",
@@ -86,14 +71,10 @@ let questionnaire = {
         collect: true,
         trialType: 'questionnaire',
     }
-
-
 }
 timeline.push(questionnaire);
 
-
 //Est Instructions
-
 let estInstructions = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
@@ -112,7 +93,6 @@ timeline.push(estInstructions);
 //make 3 blocks--practice, emotionA, emotionB
 let counter = 1;
 
-
 for (let block of conditions) {
     console.log(block);
 
@@ -128,8 +108,6 @@ for (let block of conditions) {
 
     // Screen to display the word as the selected color
     //Listen r,g,b keys
-
-
     for (let trial of block.trials) {
         console.log(trial.color);
         console.log(trial);
@@ -148,13 +126,7 @@ for (let block of conditions) {
             },
             choices: ['r', 'g', 'b'],
             on_finish: function (data) {
-                if (data.response == trial.expectedResponse) {
-                    data.correct = true;
-                }
-                else {
-                    data.correct = false;
-                }
-
+                data.correct = data.response == trial.expectedResponse
             }
         }
         timeline.push(conditionTrial);
@@ -164,14 +136,11 @@ for (let block of conditions) {
             trial_duration: 250, // 250 milliseconds
             choices: ['NO KEY']
         }
-
-
         timeline.push(fixationTrial);
     }
 }
 
 //Save results trial
-
 let resultsTrial = {
     type: jsPsychHtmlKeyboardResponse,
     choices: ['NO KEYS'],
@@ -227,7 +196,6 @@ let resultsTrial = {
 timeline.push(resultsTrial);
 
 //debrief screen
-
 let debriefTrial = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
@@ -247,4 +215,7 @@ let debriefTrial = {
 }
 timeline.push(debriefTrial);
 
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 jsPsych.run(timeline);
