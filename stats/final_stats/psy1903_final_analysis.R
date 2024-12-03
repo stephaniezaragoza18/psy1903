@@ -8,10 +8,6 @@ setwd("~/Desktop/psy1903/stats/final_stats")
 
 
 #### D-score Function --------------------------------
-est_data2 <- est_data1[est_data1$block == "emotionA" | 
-                         est_data1$block == "emotionB",
-                       c("trial_index", "rt","response","block", "word", "valence", "color", "correct")]
-
 calculate_EST_dscore <- function(data){
   tmp <- data[data$correct == TRUE & data$rt > 300 & data$rt < 5000,]
   
@@ -29,11 +25,8 @@ calculate_EST_dscore <- function(data){
   
   return(list(emotionA_d_score = dscore1, emotionB_d_score =dscore2)) 
 }
-calculate_EST_dscore(est_data2)
-est_data2$correct <- as.logical(est_data2$correct)
-
+calculate_EST_dscore(est_test)
 #### Questionnaire Scoring Function ---------------
-est_test <- read.csv(file)
 score_questionnaire <- function(data) {
   
   json_data <- data[data$trialType == "questionnaire", "response"]
@@ -43,6 +36,10 @@ score_questionnaire <- function(data) {
   questionnaire <- as.data.frame(questionnaire)
   
   questionnaire <- as.data.frame(lapply(questionnaire, as.numeric))
+  rev_items <- c("prompt4", "prompt10")
+  for (rev_item in rev_items) {
+    questionnaire [,rev_item] <- 4 - questionnaire[,rev_item]
+  }
   
   score <- rowMeans(questionnaire,na.rm = TRUE)
   return(score)
@@ -57,6 +54,8 @@ score_questionnaire(est_test)
 directory_path <- "/Users/stephaniezaragoza/Desktop/psy1903/osfstorage-archive"
 
 files_list <- list.files(path = directory_path, pattern = "\\.csv$", full.names = TRUE)
+est_test <- read.csv(file)
+est_test$correct <- as.logical(est_test$correct)
 
 
 dScores <- data.frame(matrix(nrow = length(files_list), ncol = 5))
@@ -182,3 +181,5 @@ ggplot(dScores, aes(x=emotionA_d_score)) +
     )
   )
 theme_classic() 
+
+
