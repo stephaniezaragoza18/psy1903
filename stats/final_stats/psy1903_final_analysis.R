@@ -6,10 +6,15 @@ p_load("tidyverse","rstudioapi","lme4","emmeans","psych","corrplot","jsonlite")
 
 setwd("~/Desktop/psy1903/stats/final_stats")
 
+
 #### D-score Function --------------------------------
+est_data2 <- est_data1[est_data1$block == "emotionA" | 
+                         est_data1$block == "emotionB",
+                       c("trial_index", "rt","response","block", "word", "valence", "color", "correct")]
 
 calculate_EST_dscore <- function(data){
   tmp <- data[data$correct == TRUE & data$rt > 300 & data$rt < 5000,]
+  
   emotionA_trials <- tmp[tmp$valence == "emotionA",]
   emotionB_trials <- tmp[tmp$valence == "emotionB",]                    
   neutral_trials <- tmp[tmp$valence == "neutral",]
@@ -25,16 +30,16 @@ calculate_EST_dscore <- function(data){
   return(list(emotionA_d_score = dscore1, emotionB_d_score =dscore2)) 
 }
 calculate_EST_dscore(est_data2)
-
+est_data2$correct <- as.logical(est_data2$correct)
 
 #### Questionnaire Scoring Function ---------------
-est_test <- read.csv(file.choose())
+est_test <- read.csv(file)
 score_questionnaire <- function(data) {
   
   json_data <- data[data$trialType == "questionnaire", "response"]
   
   questionnaire <- fromJSON(json_data[1])
-  str(questionnaire)
+  # str(questionnaire)
   questionnaire <- as.data.frame(questionnaire)
   
   questionnaire <- as.data.frame(lapply(questionnaire, as.numeric))
@@ -42,70 +47,50 @@ score_questionnaire <- function(data) {
   score <- rowMeans(questionnaire,na.rm = TRUE)
   return(score)
 }
+score_questionnaire(est_test)
 
-print(questionnaire)
-str(questionnaire)
-summary(questionnaire)
+# print(questionnaire)
+# str(questionnaire)
+# summary(questionnaire)
 
 #### For Loop ------------------------------------------
 directory_path <- "/Users/stephaniezaragoza/Desktop/psy1903/osfstorage-archive"
 
 files_list <- list.files(path = directory_path, pattern = "\\.csv$", full.names = TRUE)
 
+
 dScores <- data.frame(matrix(nrow = length(files_list), ncol = 5))
 
-colnames(dScores) <- c("participant_ID", "emotionA_d_score", "emotionB_d_score", "whichPrime", "questionnaire")
 
+colnames(dScores) <- c("participant_ID", "emotionA_d_score", "emotionB_d_score", "whichPrime", "questionnaire")
 i = 1
 
-est_data2$rt <- as.numeric(est_data2$rt)
-str(est_data2)
 
-est_data2$correct <- as.logical(est_data2$correct)
-str(est_data2)
-
-est_data2$block <- as.factor(est_data2$block)
-est_data2$valence <- as.factor(est_data2$valence)
-est_data2$color <- as.factor(est_data2$color)
-str(est_data2)
-
-for(file in files_list) { 
-
+for (file in files_list) {
   tmp <- read.csv(file)
   
-  participant_ID <- tools::file_path_sans_ext(basename(file))
-  
-  dScores[i,"participant_ID"] <- participant_ID
-
-  dScores[i,c("emotionA_d_score", "emotionB_d_score")] <- calculate_EST_dscore(tmp)
-  
-  rm(tmp)
-  i <- i + 1
-}
-write.csv(dScores,"~/Desktop/psy1903/stats/data_cleaning/data/participant_dScores.csv", row.names = FALSE)
-
-for(file in files_list) { 
-  
-  tmp <- read.csv(file)
-  tmp$correct <- as.logical(tmp$correct)
-
   participant_ID <- tools::file_path_sans_ext(basename(file))
   
   dScores[i,"participant_ID"] <- participant_ID
   
   dScores[i, "whichPrime"] <- tmp[tmp$trialType == "prime", "whichPrime"]
   
-  dScores[i,c("emotionA_d_score", "emotionB_d_score")] <- calculate_EST_dscore(tmp)
+  tmp$rt <- as.numeric(tmp$rt)
   
-  dScores[i, "questionnaire"] <- score_questionnaire(tmp)
+  tmp$correct <- as.logical(tmp$correct)
+  
+  tmp$block <- as.factor(tmp$block)
+  tmp$valence <- as.factor(tmp$valence)
+  tmp$color <- as.factor(tmp$color)
+  
+  dScores[i,c("emotionA_d_score","emotionB_d_score")] <- calculate_EST_dscore(tmp)
+  
+  dScores[i,"questionnaire"] <- score_questionnaire(tmp)
+  
   rm(tmp)
+  
   i <- i + 1
 }
-write.csv(dScores,"~/Desktop/psy1903/stats/data_cleaning/data/participant_dScores.csv", row.names = FALSE)
-
-dScores[, "whichPrime"] <- as.factor(dScores[, "whichPrime"])
-questionnaire <- as.data.frame(lapply(questionnaire, as.numeric))
-dScores <- as.data.frame(lapply(dScores, as.numeric))
 
 
 #### ANOVA -------------------------------------------
